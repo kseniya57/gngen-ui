@@ -1,11 +1,13 @@
-import React, { Fragment, useCallback } from 'react';
+import React, {Fragment, useCallback, useState, useMemo} from 'react';
 import PropTypes from 'prop-types';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 import { makeStyles } from '@material-ui/core/styles';
 import { Fab } from '@material-ui/core';
-import { DeleteRounded, EditRounded, AddRounded } from '@material-ui/icons';
+import { Pagination } from '@material-ui/lab';
+import { DeleteRounded, EditRounded, AddRounded, SortRounded } from '@material-ui/icons';
 import { Modal, Form } from '../../';
 import { headerShape, queriesShape } from '../../props';
+import { StyledTable, PaginationWrapper } from './styled';
 import { StyledTable } from './styled';
 import Cell from './Cell';
 import useSubscriptions from './useSubscriptions';
@@ -21,9 +23,34 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
+const PAGE_SIZE = 10;
+
+const buildPagination = (page, order) => ({
+  skip: PAGE_SIZE * (page - 1),
+  take: PAGE_SIZE,
+  order: {
+    [order.column]: order.type
+  }
+});
+
 function Table({ headers, entityName, queries, enums }) {
   const classes = useStyles();
-  const query = useQuery(queries.GET_ALL_QUERY);
+
+  const [page, setPage] = useState(1);
+  const [order, setOrder] = useState({
+    type: 'ASC',
+    column: 'id'
+  });
+
+  const query = useQuery(queries.GET_ALL_QUERY, {
+    variables: {
+      pagination: buildPagination(page, order)
+    }
+  });
+
+  const countQuery = useQuery(queries.GET_COUNT_QUERY);
+  const pagesCount = useMemo(() => countQuery.loading ? 1 : Math.ceil(countQuery.data[`${entityName}Count`] / PAGE_SIZE), [countQuery.data])
+
 
   const [deleteItem] = useMutation(queries.DELETE_MUTATION);
 
@@ -32,6 +59,20 @@ function Table({ headers, entityName, queries, enums }) {
     query,
     entityName
   });
+
+  const handleChangePage = useCallback((e, newPage) => {
+    setPage(newPage);
+    query.refetch(buildPagination(newPage, order))
+  }, [query.refetch, order]);
+
+  const handleChangeOrder = useCallback((column) => () => {
+    const newOrder = {
+      type: column === order.column ? (order.type === 'ASC' ? 'DESC' : 'ASC') : 'ASC',
+      column,
+    }
+    setOrder(newOrder);
+    query.refetch(buildPagination(page, newOrder))
+  }, [query.refetch, page, order]);
 
   const renderAddEditForm = useCallback(
     data => ({ onClose }) => {
@@ -85,7 +126,12 @@ function Table({ headers, entityName, queries, enums }) {
         <thead>
           <tr>
             {headers.map(item => (
-              <th key={item.name}>{item.name}</th>
+              <th key={item.name}>
+                 <span>
+                    {item.name}
+                    {item.sortable && <SortRounded  onClick={handleChangeOrder(item.key)}/>}
+                  </span>
+              </th>
             ))}
             <th>Действия</th>
           </tr>
@@ -118,6 +164,9 @@ function Table({ headers, entityName, queries, enums }) {
           ))}
         </tbody>
       </StyledTable>
+      {pagesCount > 1 && <PaginationWrapper>
+        <Pagination count={pagesCount} page={page} onChange={handleChangePage} />
+      </PaginationWrapper>}
       <Modal renderContent={renderAddEditForm()} title="Создание">
         {({ handleOpen }) => (
           <Fab

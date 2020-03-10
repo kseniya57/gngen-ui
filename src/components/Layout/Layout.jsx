@@ -1,7 +1,5 @@
 import React from 'react';
-import { ApolloProvider } from 'react-apollo';
 import styled from 'styled-components';
-import { ThemeProvider } from '@material-ui/core/styles';
 import { SnackbarProvider } from 'notistack';
 import Sidebar from '../Sidebar';
 
@@ -19,10 +17,8 @@ const Body = styled.div`
   overflow: auto;
 `;
 
-function Layout({ sidebar, theme, apolloClient, children }) {
-  return <ApolloProvider client={apolloClient}>
-    <ThemeProvider theme={theme}>
-      <SnackbarProvider hideIconVariant={false}>
+function Layout({ sidebar, children }) {
+  return <SnackbarProvider hideIconVariant={false}>
         <Wrapper>
           <Sidebar items={sidebar}/>
           <Body>
@@ -30,8 +26,6 @@ function Layout({ sidebar, theme, apolloClient, children }) {
           </Body>
         </Wrapper>
       </SnackbarProvider>
-    </ThemeProvider>
-  </ApolloProvider>
 }
 
 export default Layout;

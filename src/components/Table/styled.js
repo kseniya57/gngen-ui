@@ -36,6 +36,16 @@ export const StyledTable = styled.table`
       color: #ffffff;
       background-color: #037B86;
     }
+    th {
+      > span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        svg {
+          margin-left: 3px;
+        }
+      }
+    }
   }
 
   td,
@@ -52,4 +62,11 @@ export const StyledTable = styled.table`
   svg {
     cursor: pointer;
   }
+`;
+
+export const PaginationWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
 `;
