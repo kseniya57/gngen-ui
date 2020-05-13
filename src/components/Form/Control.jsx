@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import {
   Switch,
   TextField,
@@ -23,7 +24,7 @@ const adormentsMapping = {
 }
 
 export default function Control({
-  props: { key, name, type, editable, required, format },
+  props: { key, labelPath, name, type, editable, required, format },
   value,
   onChange,
   enums,
@@ -51,7 +52,7 @@ export default function Control({
             id={key}
             value={value}
             onChange={onChange}
-            renderValue={value => value.name}
+            renderValue={value => _.get(value, labelPath)}
           >
             {enums[key].map(item => (
               <MenuItem key={item} value={item}>
@@ -76,7 +77,7 @@ export default function Control({
                 {selected.map(value => (
                   <Chip
                     key={value.id}
-                    label={value.name}
+                    label={_.get(value, labelPath)}
                     className={classes.chip}
                   />
                 ))}
@@ -85,7 +86,7 @@ export default function Control({
           >
             {(dictionaries[key] || []).map(item => (
               <MenuItem key={item.id} value={item.id}>
-                {item.name}
+                {_.get(item, labelPath)}
               </MenuItem>
             ))}
           </Select>
@@ -103,7 +104,7 @@ export default function Control({
           >
             {(dictionaries[key] || []).map(item => (
               <MenuItem key={item.id} value={item.id}>
-                {item.name}
+                {_.get(item, labelPath)}
               </MenuItem>
             ))}
           </Select>

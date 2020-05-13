@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Checkbox, Grid, Chip } from '@material-ui/core';
 import truncate from 'truncate-html';
@@ -6,7 +7,7 @@ import moment from 'moment';
 import { headerShape } from '../../props';
 
 export default function Cell({ item, props, onChange, classes }) {
-  const { key } = props;
+  const { key, labelPath } = props;
   switch (props.type) {
     case 'boolean':
       return (
@@ -21,10 +22,10 @@ export default function Cell({ item, props, onChange, classes }) {
         <Grid container spacing={2}>
           {(item[key] || []).slice(0, 2).map(relatedEntity => (
             <Chip
-              key={relatedEntity.id}
+              key={relatedEntity.name}
               variant="outlined"
               size="small"
-              label={relatedEntity.name}
+              label={_.get(relatedEntity, labelPath)}
               className={classes.chip}
             />
           ))}
@@ -32,7 +33,7 @@ export default function Cell({ item, props, onChange, classes }) {
         </Grid>
       );
     case 'singleRelation':
-      return item[key].name;
+      return _.get(item[key], labelPath);
     case 'date':
       return moment(item[key]).format('DD.MM.YYYY');
     case 'text':
