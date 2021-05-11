@@ -10,7 +10,7 @@
     "@material-ui/lab": "^4.0.0-alpha.45",
     "apollo-client": "^2.6.8",
     "graphql": "^14.6.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "moment": "^2.24.0",
     "notistack": "^0.9.8",
     "pluralize": "^8.0.0",
